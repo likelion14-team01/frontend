@@ -1,72 +1,46 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import Footer from "../../components/footer/Footer.jsx";
 import TimelineCard from "../Timeline/TimelineCard";
-
-const plants = [
-  {
-    id: 1,
-    name: "몬스테라",
-    totalCount: 3,
-    recordCount: 2,
-    active: false,
-  },
-  {
-    id: 2,
-    name: "스투키",
-    totalCount: 2,
-    recordCount: 2,
-    active: true,
-  },
-];
-
-const timelineRecords = [
-  {
-    id: 1,
-    date: "6월 14일",
-    tag: "sprout",
-    content: "새 잎이 올라오기 시작했다",
-  },
-  {
-    id: 2,
-    date: "6월 14일",
-    tag: "leaf",
-    content: "새 잎이 올라오기 시작했다",
-  },
-  {
-    id: 3,
-    date: "6월 14일",
-    tag: "farewell",
-    content: "작별의 순간....",
-  },
-];
+import { getPlants } from "../../api/plantApi.js";
+import { getTimeline } from "../../api/timelineApi.js";
 
 const PageContainer = styled.div`
-  width: 402px;
-  height: 1280px;
+  width: 100%;
+  min-height: 100vh;
   position: relative;
-  background: #F6F9F5;
-  overflow: hidden;
+  background: #f6f9f5;
+  overflow-y: auto;
+  overflow-x: hidden;
 `;
 
 const Content = styled.div`
   width: 100%;
-  height: calc(100% - 79px);
-  padding: 34px 30px 0;
+  padding: 34px 30px 120px;
+  box-sizing: border-box;
 `;
 
 const PageTitle = styled.h1`
-    color: #3F3F3F;
-    font-size: 20px;
-    font-family: Pretendard Variable;
-    font-weight: 600;
-    text-align: center;
+  margin: 0;
+  color: #3f3f3f;
+  font-size: 20px;
+  font-family: Pretendard Variable;
+  font-weight: 600;
+  text-align: center;
 `;
 
 const PlantTabs = styled.div`
   margin-top: 31px;
   display: flex;
   gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const PlantTab = styled.button`
@@ -80,6 +54,7 @@ const PlantTab = styled.button`
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+  flex-shrink: 0;
 `;
 
 const MemorialInfo = styled.section`
@@ -131,11 +106,12 @@ const Divider = styled.div`
 `;
 
 const IntroText = styled.p`
-    color: #3F3F3F;
-    font-size: 14px;
-    font-family: Pretendard Variable;
-    font-weight: 500;
-    text-align: center;
+  margin: 36px 0 0;
+  color: #3f3f3f;
+  font-size: 14px;
+  font-family: Pretendard Variable;
+  font-weight: 500;
+  text-align: center;
 `;
 
 const TimelineArea = styled.div`
@@ -148,25 +124,20 @@ const TimelineLine = styled.div`
   position: absolute;
   left: 0;
   top: 8px;
+  bottom: 0;
   width: 2px;
-  height: 620px;
   background: #78dc6e;
 `;
 
-const TimelineItem = styled.article`
+const TimelineItem = styled.div`
   position: relative;
-  width: 294px;
-  height: 216px;
   margin-bottom: 14px;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #ffffff;
 `;
 
 const TimelineIcon = styled.div`
   position: absolute;
   left: -57px;
-  top: ${({ $index }) => ($index === 2 ? "97px" : "86px")};
+  top: 86px;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -180,105 +151,169 @@ const TimelineIcon = styled.div`
   z-index: 2;
 `;
 
-const CardImageArea = styled.div`
-  height: 154px;
-  position: relative;
-  background: #f1f1f1;
-`;
-
-const DateBadge = styled.span`
-  position: absolute;
-  left: 14px;
-  top: 11px;
-  height: 22px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.55);
-  color: #ffffff;
-  font-size: 12px;
+const EmptyText = styled.p`
+  margin: 90px 0 0;
+  text-align: center;
+  color: #a8a8a8;
+  font-size: 14px;
   font-weight: 600;
-  display: flex;
-  align-items: center;
 `;
 
-const CardContent = styled.div`
-  height: 62px;
-  padding: 20px 16px;
-  color: #3f3f3f;
-  font-size: 15px;
-  font-weight: 500;
-`;
-
-const FooterWrapper = styled.div`
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-`;
+const getImageUrl = (url) => {
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+  return `${import.meta.env.VITE_API_URL}${url}`;
+};
 
 const getTimelineIcon = (tag) => {
-  if (tag === "farewell") return "🪦";
-  if (tag === "leaf") return "🌿";
+  if (tag === "FAREWELL" || tag === "farewell" || tag === "작별") return "🪦";
+  if (tag === "LEAF_GROWTH" || tag === "leaf" || tag === "잎 성장") return "🌿";
+  if (tag === "FLOWER" || tag === "꽃 개화") return "🌼";
+  if (tag === "LEAF_CHANGE" || tag === "잎 변화") return "🍃";
   return "🌱";
 };
 
+const getRecordDateText = (record) => {
+  if (record.recordDateText) return record.recordDateText;
+  if (record.dateText) return record.dateText;
+  if (record.date) return record.date;
+  if (!record.recordDate) return "";
+
+  const date = new Date(record.recordDate);
+  if (Number.isNaN(date.getTime())) return record.recordDate;
+
+  return `${date.getMonth() + 1}월 ${date.getDate()}일`;
+};
+
+const normalizeTimelineRecords = (data) => {
+  const records = Array.isArray(data) ? data : data?.records ?? data?.timeline ?? [];
+
+  return records.map((record) => ({
+    id: record.recordId || record.id || record.recordDate,
+    date: getRecordDateText(record),
+    tag: record.growthTag || record.tag || record.tagName,
+    content: record.note || record.memo || record.content || "",
+    imageUrl: getImageUrl(record.photoUrl || record.imageUrl),
+  }));
+};
+
+const isDeadPlant = (plant) => {
+  return plant.dead === true || plant.isDead === true || plant.status === "DEAD";
+};
+
+const formatDate = (date) => {
+  if (!date) return "";
+  return String(date).replaceAll("-", ".");
+};
+
 export default function MemorialTimeline() {
-  const activePlant = plants.find((plant) => plant.active);
+  const [deadPlants, setDeadPlants] = useState([]);
+  const [selectedPlantId, setSelectedPlantId] = useState(null);
+  const [timelineRecords, setTimelineRecords] = useState([]);
+
+  const activePlant = deadPlants.find(
+    (plant) => String(plant.plantId) === String(selectedPlantId)
+  );
+
+  useEffect(() => {
+    const fetchDeadPlants = async () => {
+      try {
+        const data = await getPlants();
+        const plants = Array.isArray(data) ? data : [];
+        const filteredPlants = plants.filter(isDeadPlant);
+
+        setDeadPlants(filteredPlants);
+
+        if (filteredPlants.length > 0) {
+          setSelectedPlantId(filteredPlants[0].plantId);
+        }
+      } catch (error) {
+        console.error("죽은 식물 목록 조회 실패:", error);
+      }
+    };
+
+    fetchDeadPlants();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedPlantId) return;
+
+    const fetchMemorialTimeline = async () => {
+      try {
+        const data = await getTimeline(selectedPlantId);
+        setTimelineRecords(normalizeTimelineRecords(data));
+      } catch (error) {
+        console.error("추모 타임라인 조회 실패:", error);
+        setTimelineRecords([]);
+      }
+    };
+
+    fetchMemorialTimeline();
+  }, [selectedPlantId]);
+
+  if (!activePlant) {
+    return (
+      <PageContainer>
+        <Content>
+          <PageTitle>추모 타임라인</PageTitle>
+          <EmptyText>아직 추모할 식물이 없어요.</EmptyText>
+        </Content>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
       <Content>
-        <PageTitle>{activePlant.name}</PageTitle>
+        <PageTitle>{activePlant.nickname}</PageTitle>
 
         <PlantTabs>
-          {plants.map((plant) => (
-            <PlantTab key={plant.id} $active={plant.active}>
-              {plant.name} ({plant.recordCount})
+          {deadPlants.map((plant) => (
+            <PlantTab
+              key={plant.plantId}
+              type="button"
+              $active={String(selectedPlantId) === String(plant.plantId)}
+              onClick={() => setSelectedPlantId(plant.plantId)}
+            >
+              {plant.nickname} ({plant.recordCount})
             </PlantTab>
           ))}
         </PlantTabs>
 
         <MemorialInfo>
           <MemorialIcon>🪦</MemorialIcon>
-          <PlantName>{activePlant.name}</PlantName>
-          <PeriodText>37일간 함께했어요</PeriodText>
-          <DateRange>2026.05.04 ~ 2026.07.04</DateRange>
+          <PlantName>{activePlant.nickname}</PlantName>
+          <PeriodText>{activePlant.daysTogether || activePlant.daysSinceStart || 0}일간 함께했어요</PeriodText>
+          <DateRange>
+            {formatDate(activePlant.startDate) || "2026.05.04"} ~ {formatDate(activePlant.deadDate || activePlant.lastWateredDate) || "2026.07.04"}
+          </DateRange>
         </MemorialInfo>
 
         <Divider />
 
-        <IntroText>{activePlant.name}와 함께한 소중한 시간을 추억해보세요</IntroText>
+        <IntroText>{activePlant.nickname}와 함께한 소중한 시간을 추억해보세요</IntroText>
 
-        <TimelineArea>
-          <TimelineLine />
-          {timelineRecords.map((record, index) => (
-  <div
-    key={record.id}
-    style={{
-      position: "relative",
-      marginBottom: "14px",
-    }}
-  >
-    <TimelineIcon
-      $index={index}
-      $farewell={record.tag === "farewell"}
-    >
-      {getTimelineIcon(record.tag)}
-    </TimelineIcon>
+        {timelineRecords.length > 0 ? (
+          <TimelineArea>
+            <TimelineLine />
+            {timelineRecords.map((record) => (
+              <TimelineItem key={record.id}>
+                <TimelineIcon $farewell={record.tag === "FAREWELL" || record.tag === "farewell"}>
+                  {getTimelineIcon(record.tag)}
+                </TimelineIcon>
 
-    <TimelineCard
-      imageUrl={record.imageUrl}
-      dateText={record.date}
-      memo={record.content}
-    />
-  </div>
-))}
-        </TimelineArea>
+                <TimelineCard
+                  imageUrl={record.imageUrl}
+                  dateText={record.date}
+                  memo={record.content}
+                />
+              </TimelineItem>
+            ))}
+          </TimelineArea>
+        ) : (
+          <EmptyText>아직 남겨진 추억이 없어요.</EmptyText>
+        )}
       </Content>
-
-      <FooterWrapper>
-        <Footer />
-      </FooterWrapper>
     </PageContainer>
   );
 }

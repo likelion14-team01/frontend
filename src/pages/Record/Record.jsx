@@ -1,18 +1,33 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Header from "../../components/header/Header.jsx";
 import Button from "../../components/button/Button.jsx";
 import RecordModal from "./RecordModal.jsx";
+import { getPlants } from "../../api/plantApi.js";
+import { saveRecord } from "../../api/recordApi.js";
+import { uploadPhoto } from "../../api/photoApi.js";
 
-const plantNameMap = {
-  monstera: "몬스테라",
-  scindapsus: "스킨답서스",
-  lavender: "라벤더",
-};
 
 const tagList = ["새잎", "잎 성장", "꽃 개화", "잎 변화", "작별"];
+
+const tagValueMap = {
+  새잎: "NEW_LEAF",
+  "잎 성장": "LEAF_GROWTH",
+  "꽃 개화": "FLOWER",
+  "잎 변화": "LEAF_CHANGE",
+  작별: "FAREWELL",
+};
+
+const getTodayDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const date = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${date}`;
+};
 
 const RecordContainer = styled.div`
     width: 100%;
@@ -218,14 +233,36 @@ const ButtonWrapper = styled.div`
 export default function Record() {
   const { plantName } = useParams();
   const navigate = useNavigate();
-  const currentPlantName = plantNameMap[plantName] || "몬스테라";
+  const [selectedPlant, setSelectedPlant] = useState(null);
+  const currentPlantName = selectedPlant?.nickname || "";
   const [selectedTag, setSelectedTag] = useState("");
   const [waterStatus, setWaterStatus] = useState("");
+  const [memo, setMemo] = useState("");
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [selectedImage, setSelectedImage] = useState(null);
   const photoInputRef = useRef(null);
 
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchSelectedPlant = async () => {
+      try {
+        const data = await getPlants();
+        const plants = Array.isArray(data) ? data : [];
+        const foundPlant = plants.find(
+          (plant) => String(plant.plantId) === String(plantName)
+        );
+
+        setSelectedPlant(foundPlant || null);
+      } catch (error) {
+        console.error("선택한 식물 조회 실패:", error);
+      }
+    };
+
+    fetchSelectedPlant();
+  }, [plantName]);
 
   const handlePhotoClick = () => {
     photoInputRef.current.click();
@@ -235,6 +272,7 @@ export default function Record() {
     const file = event.target.files[0];
 
     if (file) {
+      setSelectedImageFile(file);
       setSelectedImage(URL.createObjectURL(file));
     }
   };
@@ -242,11 +280,56 @@ export default function Record() {
   const handleRemovePhoto = (event) => {
     event.stopPropagation();
     setSelectedImage(null);
+    setSelectedImageFile(null);
     photoInputRef.current.value = "";
   };
 
-  const handleSaveRecord = () => {
-    setIsCompleteModalOpen(true);
+  const handleSaveRecord = async () => {
+    if (isSubmitting) return;
+
+    if (!selectedPlant?.plantId) {
+      alert("식물 정보를 불러오는 중입니다.");
+      return;
+    }
+
+    if (!waterStatus) {
+      alert("오늘 물을 줬는지 선택해주세요.");
+      return;
+    }
+
+    if (!selectedTag) {
+      alert("성장 태그를 선택해주세요.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      let photoUrl = "";
+
+      if (selectedImageFile) {
+        const uploadedPhoto = await uploadPhoto(selectedImageFile);
+        photoUrl = uploadedPhoto?.photoUrl || uploadedPhoto?.url || uploadedPhoto || "";
+      }
+
+      const recordDate = getTodayDate();
+      const recordData = {
+        watered: waterStatus === "watered",
+        note: memo,
+        growthTag: tagValueMap[selectedTag],
+        photoUrl,
+      };
+
+      console.log("기록 저장 요청 데이터:", recordData);
+
+      await saveRecord(selectedPlant.plantId, recordDate, recordData);
+      setIsCompleteModalOpen(true);
+    } catch (error) {
+      console.error("기록 저장 실패:", error);
+      alert("기록 저장에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleButtonClick = () => {
@@ -261,7 +344,7 @@ export default function Record() {
     <RecordContainer>
       <Header title="기록하기" />
       <PlantSelect>
-        <span>{currentPlantName}</span>
+        {currentPlantName && <span>{currentPlantName}</span>}
         <ArrowDown />
       </PlantSelect>
       <PhotoBox onClick={handlePhotoClick}>
@@ -296,7 +379,11 @@ export default function Record() {
         </WaterButton>
       </WaterButtonRow>
       <Title>한 줄 메모</Title>
-      <MemoBox placeholder="메모를 남겨보세요" />
+      <MemoBox
+        placeholder="메모를 남겨보세요"
+        value={memo}
+        onChange={(event) => setMemo(event.target.value)}
+      />
       <Title>성장 태그</Title>
       <TagRow>
         {tagList.map((tag) => (
@@ -313,7 +400,9 @@ export default function Record() {
         ))}
       </TagRow>
         <ButtonWrapper>
-            <Button onClick={handleSaveRecord}>오늘 기록 저장하기</Button>
+            <Button onClick={handleSaveRecord} disabled={isSubmitting}>
+              {isSubmitting ? "저장 중..." : "오늘 기록 저장하기"}
+            </Button>
         </ButtonWrapper>
         {isCompleteModalOpen && (
           <RecordModal

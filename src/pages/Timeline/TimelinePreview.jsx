@@ -3,6 +3,8 @@ import { useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 
 import Header from "../../components/header/Header.jsx";
+import { saveRecord } from "../../api/recordApi.js";
+import { uploadPhoto } from "../../api/photoApi.js";
 
 const fallbackRecords = [
   {
@@ -118,6 +120,7 @@ const TagBadge = styled.div`
   position: absolute;
   top: 18px;
   left: 16px;
+  min-width: 86px;
   height: 34px;
   padding: 0 16px;
   border-radius: 999px;
@@ -128,6 +131,7 @@ const TagBadge = styled.div`
   justify-content: center;
   font-size: 13px;
   font-weight: 700;
+  box-sizing: border-box;
 `;
 
 const RemoveButton = styled.button`
@@ -315,10 +319,61 @@ const ConfirmButton = styled.button`
   cursor: pointer;
 `;
 
+
 const getTagIcon = (tag) => {
-  if (tag === "leaf") return "🌿";
-  if (tag === "water") return "🍃";
+  if (tag === "LEAF_GROWTH" || tag === "leaf" || tag === "잎 성장") return "🌿";
+  if (tag === "NEW_LEAF" || tag === "sprout" || tag === "새잎") return "🌱";
+  if (tag === "FLOWER" || tag === "꽃 개화") return "🌼";
+  if (tag === "LEAF_CHANGE" || tag === "water" || tag === "잎 변화") return "🍃";
+  if (tag === "FAREWELL" || tag === "작별") return "🪦";
   return "🌱";
+};
+
+const getTagText = (record) => {
+  if (record.tagText) return record.tagText;
+  if (record.growthTagText) return record.growthTagText;
+  if (record.tagName) return record.tagName;
+
+  switch (record.growthTag || record.tag) {
+    case "NEW_LEAF":
+    case "sprout":
+      return "새잎";
+    case "LEAF_GROWTH":
+    case "leaf":
+      return "잎 성장";
+    case "FLOWER":
+      return "꽃 개화";
+    case "LEAF_CHANGE":
+    case "water":
+      return "잎 변화";
+    case "FAREWELL":
+      return "작별";
+    default:
+      return "";
+  }
+};
+
+const getRecordDateValue = (record) => {
+  if (record.recordDate) return record.recordDate;
+  if (record.raw?.recordDate) return record.raw.recordDate;
+
+  const currentYear = new Date().getFullYear();
+  const dateText = record.date || "";
+  const match = dateText.match(/(\d+)월\s*(\d+)일/);
+
+  if (!match) return "";
+
+  const month = String(match[1]).padStart(2, "0");
+  const day = String(match[2]).padStart(2, "0");
+
+  return `${currentYear}-${month}-${day}`;
+};
+
+const getWateredValue = (record) => {
+  if (typeof record.watered === "boolean") return record.watered;
+  if (typeof record.raw?.watered === "boolean") return record.raw.watered;
+
+  return record.waterText === "물 준 날";
 };
 
 export default function TimelinePreview() {
@@ -330,6 +385,7 @@ export default function TimelinePreview() {
 
   const stateRecord = location.state?.record;
   const statePlantName = location.state?.plantName;
+  const statePlantId = location.state?.plantId;
 
   const fallbackRecord = fallbackRecords.find(
     (record) => record.id === Number(id)
@@ -339,12 +395,15 @@ export default function TimelinePreview() {
   const plantName = statePlantName || record.plantName || "몬스테라";
 
   const [previewImage, setPreviewImage] = useState(record.imageUrl || "");
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [memo, setMemo] = useState(record.memo || "");
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setPreviewImage(record.imageUrl || "");
-    setMemo(record.memo || "");
+    setSelectedImageFile(null);
+    setMemo(record.memo || record.note || "");
 
     return () => {
       if (objectUrlRef.current) {
@@ -367,6 +426,7 @@ export default function TimelinePreview() {
     }
 
     const newImageUrl = URL.createObjectURL(file);
+    setSelectedImageFile(file);
     objectUrlRef.current = newImageUrl;
     setPreviewImage(newImageUrl);
   };
@@ -378,21 +438,51 @@ export default function TimelinePreview() {
     }
 
     setPreviewImage("");
+    setSelectedImageFile(null);
 
     if (photoInputRef.current) {
       photoInputRef.current.value = "";
     }
   };
 
-  const handleEditComplete = () => {
-    const updatedRecord = {
-      ...record,
-      memo,
-      imageUrl: previewImage,
-    };
+  const handleEditComplete = async () => {
+    if (isSubmitting) return;
 
-    console.log("수정 완료된 기록:", updatedRecord);
-    setIsCompleteModalOpen(true);
+    const plantId = statePlantId || record.plantId || record.raw?.plantId;
+    const recordDate = getRecordDateValue(record);
+
+    if (!plantId || !recordDate) {
+      alert("기록 정보를 찾을 수 없습니다.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      let photoUrl = previewImage || "";
+
+      if (selectedImageFile) {
+        const uploadedPhoto = await uploadPhoto(selectedImageFile);
+        photoUrl = uploadedPhoto?.photoUrl || uploadedPhoto?.url || uploadedPhoto || "";
+      }
+
+      const updatedRecord = {
+        watered: getWateredValue(record),
+        note: memo,
+        growthTag: record.growthTag || record.tag || record.raw?.growthTag,
+        photoUrl,
+      };
+
+      console.log("수정 완료된 기록:", updatedRecord);
+
+      await saveRecord(plantId, recordDate, updatedRecord);
+      setIsCompleteModalOpen(true);
+    } catch (error) {
+      console.error("기록 수정 실패:", error);
+      alert("기록 수정에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -411,7 +501,7 @@ export default function TimelinePreview() {
             <PlaceholderImage />
           )}
 
-          <TagBadge>{record.tagMessage}</TagBadge>
+          <TagBadge>{getTagText(record)}</TagBadge>
 
           {previewImage && (
             <RemoveButton
@@ -442,16 +532,16 @@ export default function TimelinePreview() {
         />
 
         <StatusRow>
-          <GrowthIconBox>{getTagIcon(record.tag)}</GrowthIconBox>
-          <TextChip>{record.tagText}</TextChip>
+          <GrowthIconBox>{getTagIcon(record.growthTag || record.tag)}</GrowthIconBox>
+          <TextChip>{getTagText(record)}</TextChip>
 
           <WaterIcon>💧</WaterIcon>
           <WaterChip>{record.waterText}</WaterChip>
         </StatusRow>
 
         <ButtonWrapper>
-          <EditButton type="button" onClick={handleEditComplete}>
-            수정 완료
+          <EditButton type="button" onClick={handleEditComplete} disabled={isSubmitting}>
+            {isSubmitting ? "수정 중..." : "수정 완료"}
           </EditButton>
         </ButtonWrapper>
       </Content>

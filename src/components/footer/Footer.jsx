@@ -82,14 +82,15 @@ export default function Footer() {
         <FooterContainer>
             <HomeIcon src={pathname === "/" || pathname.startsWith("/record/") || pathname === "/register" ? homeActive : homeIcon} onClick={() => navigate("/")}/>
             <TimelineIcon
-  src={
+        src={
     pathname.startsWith("/timeline") || pathname === "/memorialTimeline"
       ? timelineActive
       : timelineIcon
   }
+            
   onClick={() => navigate("/timeline")}
 />
-
+            <MypageIcon src={mypageIcon} />
             <HomeP><MenuSpan>홈</MenuSpan></HomeP>
             <TimelineP><MenuSpan>타임라인</MenuSpan></TimelineP>
             <MypageP><MenuSpan>준비중</MenuSpan></MypageP>

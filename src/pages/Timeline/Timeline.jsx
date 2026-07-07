@@ -1,94 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
-import Footer from "../../components/footer/Footer.jsx";
 import TimelineCard from "./TimelineCard.jsx";
-
-const plants = [
-  {
-    id: 1,
-    name: "몬스테라",
-    recordCount: 3,
-    records: [
-      {
-        id: 1,
-        date: "6월 14일",
-        day: "일",
-        tag: "sprout",
-        tagText: "새잎",
-        tagMessage: "새싹이 나왔어요",
-        memo: "새 잎이 올라오기 시작했다",
-        waterText: "물 준 날",
-        imageUrl: "",
-      },
-      {
-        id: 2,
-        date: "6월 18일",
-        day: "목",
-        tag: "leaf",
-        tagText: "잎 성장",
-        tagMessage: "잎이 더 커졌어요",
-        memo: "잎이 더 커졌다",
-        waterText: "패스한 날",
-        imageUrl: "",
-      },
-      {
-        id: 3,
-        date: "6월 22일",
-        day: "월",
-        tag: "water",
-        tagText: "잎 변화",
-        tagMessage: "건강하게 자랐어요",
-        memo: "물을 주고 건강하게 자랐다",
-        waterText: "물 준 날",
-        imageUrl: "",
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "스투키",
-    recordCount: 2,
-    records: [
-      {
-        id: 4,
-        date: "6월 15일",
-        day: "월",
-        tag: "sprout",
-        tagText: "새잎",
-        tagMessage: "새싹이 나왔어요",
-        memo: "첫 기록을 남겼다",
-        waterText: "물 준 날",
-        imageUrl: "",
-      },
-      {
-        id: 5,
-        date: "6월 21일",
-        day: "일",
-        tag: "leaf",
-        tagText: "잎 성장",
-        tagMessage: "잎이 자랐어요",
-        memo: "새 잎이 자랐다",
-        waterText: "패스한 날",
-        imageUrl: "",
-      },
-    ],
-  },
-];
+import { getPlants } from "../../api/plantApi.js";
+import { getTimeline } from "../../api/timelineApi.js";
 
 const PageContainer = styled.div`
   width: 100%;
-  height: 990px;
+  min-height: 100vh;
   position: relative;
   background: #fbfdf9;
-  overflow: hidden;
+  overflow-y: auto;
 `;
 
 const Content = styled.div`
   width: 100%;
-  height: calc(100% - 79px);
-  padding: 47px 12px 0;
+  padding: 47px 12px 160px;
   box-sizing: border-box;
 `;
 
@@ -103,8 +31,16 @@ const PageTitle = styled.h1`
 const PlantTabs = styled.div`
   margin-top: 33px;
   display: flex;
-  justify-content: center;
   gap: 11px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  padding: 0 12px 6px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const PlantTab = styled.button`
@@ -117,6 +53,7 @@ const PlantTab = styled.button`
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  flex-shrink: 0;
 `;
 
 const TimelineArea = styled.div`
@@ -129,8 +66,8 @@ const TimelineLine = styled.div`
   position: absolute;
   left: 22px;
   top: 12px;
+  bottom: 73px;
   width: 2px;
-  height: 632px;
   background: #78dc6e;
 `;
 
@@ -165,29 +102,114 @@ const CardWrapper = styled.button`
   cursor: pointer;
 `;
 
-const FooterWrapper = styled.div`
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 100%;
+const EmptyText = styled.p`
+  margin: 80px 0 0;
+  text-align: center;
+  color: #a8a8a8;
+  font-size: 14px;
+  font-weight: 600;
 `;
 
-const getTimelineIcon = (tag) => {
-  if (tag === "leaf") return "🌿";
-  if (tag === "water") return "🛡️";
+
+const getImageUrl = (url) => {
+  if (!url) return "";
+
+  if (url.startsWith("http")) {
+    return url;
+  }
+
+  return `${import.meta.env.VITE_API_URL}${url}`;
+};
+
+const getTagIcon = (tag) => {
+  if (tag === "LEAF_GROWTH" || tag === "leaf" || tag === "잎 성장") return "🌿";
+  if (tag === "NEW_LEAF" || tag === "sprout" || tag === "새잎") return "🌱";
+  if (tag === "FLOWER" || tag === "꽃 개화") return "🌼";
+  if (tag === "LEAF_CHANGE" || tag === "잎 변화") return "🍃";
+  if (tag === "FAREWELL" || tag === "작별") return "🪦";
   return "🌱";
+};
+
+const getRecordDateText = (record) => {
+  if (record.recordDateText) return record.recordDateText;
+  if (record.dateText) return record.dateText;
+  if (record.date) return record.date;
+  if (!record.recordDate) return "";
+
+  const date = new Date(record.recordDate);
+
+  if (Number.isNaN(date.getTime())) {
+    return record.recordDate;
+  }
+
+  return `${date.getMonth() + 1}월 ${date.getDate()}일`;
+};
+
+const normalizeTimelineRecords = (data) => {
+  const records = Array.isArray(data) ? data : data?.records ?? data?.timeline ?? [];
+
+  return records.map((record) => ({
+    id: record.recordId || record.id,
+    date: getRecordDateText(record),
+    tag: record.tag || record.growthTag || record.tagName,
+    tagText: record.tagText || record.growthTagText || record.tagName,
+    tagMessage: record.tagMessage || record.growthMessage || "",
+    memo: record.note || record.memo || record.content || "",
+    waterText: record.waterText || (record.watered ? "물 준 날" : "패스한 날"),
+    imageUrl: getImageUrl(record.photoUrl || record.imageUrl),
+    raw: record,
+  }));
 };
 
 export default function Timeline() {
   const navigate = useNavigate();
-  const [selectedPlantId, setSelectedPlantId] = useState(1);
+  const [plants, setPlants] = useState([]);
+  const [selectedPlantId, setSelectedPlantId] = useState(null);
+  const [timelineRecords, setTimelineRecords] = useState([]);
 
-  const selectedPlant = plants.find((plant) => plant.id === selectedPlantId);
+  const selectedPlant = plants.find(
+    (plant) => String(plant.plantId) === String(selectedPlantId)
+  );
+
+  useEffect(() => {
+    const fetchPlants = async () => {
+      try {
+        const data = await getPlants();
+        const plantList = Array.isArray(data) ? data : [];
+
+        setPlants(plantList);
+
+        if (plantList.length > 0) {
+          setSelectedPlantId(plantList[0].plantId);
+        }
+      } catch (error) {
+        console.error("식물 목록 조회 실패:", error);
+      }
+    };
+
+    fetchPlants();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedPlantId) return;
+
+    const fetchTimeline = async () => {
+      try {
+        const data = await getTimeline(selectedPlantId);
+        setTimelineRecords(normalizeTimelineRecords(data));
+      } catch (error) {
+        console.error("타임라인 조회 실패:", error);
+        setTimelineRecords([]);
+      }
+    };
+
+    fetchTimeline();
+  }, [selectedPlantId]);
 
   const handleTimelineCardClick = (record) => {
     navigate(`/timelinepreview/${record.id}`, {
       state: {
-        plantName: selectedPlant.name,
+        plantName: selectedPlant?.nickname,
         record,
       },
     });
@@ -196,46 +218,47 @@ export default function Timeline() {
   return (
     <PageContainer>
       <Content>
-        <PageTitle>{selectedPlant.name}</PageTitle>
+        <PageTitle>{selectedPlant?.nickname || ""}</PageTitle>
 
         <PlantTabs>
           {plants.map((plant) => (
             <PlantTab
-              key={plant.id}
+              key={plant.plantId}
               type="button"
-              $active={selectedPlantId === plant.id}
-              onClick={() => setSelectedPlantId(plant.id)}
+              $active={String(selectedPlantId) === String(plant.plantId)}
+              onClick={() => setSelectedPlantId(plant.plantId)}
             >
-              {plant.name} ({plant.recordCount})
+              {plant.nickname} ({plant.recordCount})
             </PlantTab>
           ))}
         </PlantTabs>
 
-        <TimelineArea>
-          <TimelineLine />
+        {timelineRecords.length > 0 ? (
+          <TimelineArea>
+            <TimelineLine />
 
-          {selectedPlant.records.map((record) => (
-            <TimelineItem key={record.id}>
-              <TimelineIcon>{getTimelineIcon(record.tag)}</TimelineIcon>
+            {timelineRecords.map((record) => (
+              <TimelineItem key={record.id}>
+                <TimelineIcon>{getTagIcon(record.tag)}</TimelineIcon>
 
-              <CardWrapper
-                type="button"
-                onClick={() => handleTimelineCardClick(record)}
-              >
-                <TimelineCard
-                  dateText={record.date}
-                  memo={record.memo}
-                  imageUrl={record.imageUrl}
-                />
-              </CardWrapper>
-            </TimelineItem>
-          ))}
-        </TimelineArea>
+                <CardWrapper
+                  type="button"
+                  onClick={() => handleTimelineCardClick(record)}
+                >
+                  <TimelineCard
+                    dateText={record.date}
+                    memo={record.memo}
+                    imageUrl={record.imageUrl}
+                  />
+                </CardWrapper>
+              </TimelineItem>
+            ))}
+          </TimelineArea>
+        ) : (
+          <EmptyText>아직 등록된 기록이 없어요.</EmptyText>
+        )}
       </Content>
 
-      <FooterWrapper>
-        <Footer />
-      </FooterWrapper>
     </PageContainer>
   );
 }

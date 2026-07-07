@@ -1,37 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Header from "../../components/header/Header";
 import Button from "../../components/button/Button";
 
-import "./Register.css";
+import { addPlant } from "../../api/plantApi";
+import { uploadPhoto } from "../../api/photoApi";
+import { getSpecies } from "../../api/speciesApi";
 
-const PLANT_OPTIONS = [
-  {
-    id: 1,
-    name: "몬스테라",
-    category: "관엽식물",
-    description: "밝은 간접광에서 잘 자라요",
-    waterCycleText: "5~7일",
-  },
-  {
-    id: 2,
-    name: "스킨답서스",
-    category: "관엽식물",
-    description: "초보자도 쉽게 기를 수 있어요",
-    waterCycleText: "7~10일",
-  },
-  {
-    id: 3,
-    name: "스투키",
-    category: "다육·선인장",
-    description: "물을 자주 주지 않아도 돼요",
-    waterCycleText: "2~3주",
-  },
-];
+import "./Register.css";
 
 function Register() {
   const navigate = useNavigate();
+
+  const [plantOptions, setPlantOptions] = useState([]);
+  const [selectedPhotoFile, setSelectedPhotoFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [searchValue, setSearchValue] = useState("");
   const [selectedPlant, setSelectedPlant] = useState(null);
@@ -39,6 +23,19 @@ function Register() {
   const [photoPreview, setPhotoPreview] = useState("");
   const [waterCycle, setWaterCycle] = useState("");
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchSpecies = async () => {
+      try {
+        const data = await getSpecies();
+        setPlantOptions(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("식물 종 목록 조회 실패:", error);
+      }
+    };
+
+    fetchSpecies();
+  }, []);
 
   const handleOpenPlantList = () => {
     if (!selectedPlant) {
@@ -56,12 +53,13 @@ function Register() {
     setSearchValue("");
     setSelectedPlant(null);
     setWaterCycle("");
+    setSelectedPhotoFile(null);
     setIsPlantListOpen(true);
   };
 
   const handleSelectPlant = (plant) => {
     setSelectedPlant(plant);
-    setSearchValue(plant.name);
+    setSearchValue(plant.name || plant.speciesName || "");
     setIsPlantListOpen(false);
   };
 
@@ -69,6 +67,8 @@ function Register() {
     const file = event.target.files[0];
 
     if (!file) return;
+
+    setSelectedPhotoFile(file);
 
     if (photoPreview) {
       URL.revokeObjectURL(photoPreview);
@@ -87,6 +87,7 @@ function Register() {
     }
 
     setPhotoPreview("");
+    setSelectedPhotoFile(null);
   };
 
   const handleWaterCycleChange = (event) => {
@@ -97,11 +98,19 @@ function Register() {
     setWaterCycle(value);
   };
 
-  const handleRegister = () => {
-    const plantName = selectedPlant?.name || searchValue.trim();
+  const handleRegister = async () => {
+    if (isSubmitting) return;
+
+    const plantName = selectedPlant?.name || selectedPlant?.speciesName || searchValue.trim();
+    const speciesId = selectedPlant?.id || selectedPlant?.speciesId;
 
     if (!plantName) {
       alert("식물 이름을 입력해주세요.");
+      return;
+    }
+
+    if (!speciesId) {
+      alert("목록에서 식물을 선택해주세요.");
       return;
     }
 
@@ -110,17 +119,34 @@ function Register() {
       return;
     }
 
-    const newPlant = {
-      id: Date.now(),
-      name: plantName,
-      category: selectedPlant?.category || "직접 입력",
-      description: selectedPlant?.description || "",
-      waterCycle: Number(waterCycle),
-      photo: photoPreview,
-    };
+    try {
+      setIsSubmitting(true);
 
-    console.log("등록할 식물 데이터:", newPlant);
-    setIsCompleteModalOpen(true);
+      let photoUrl = selectedPlant?.imageUrl || selectedPlant?.speciesImageUrl || "";
+
+      if (selectedPhotoFile) {
+        const uploadedPhoto = await uploadPhoto(selectedPhotoFile);
+        photoUrl = uploadedPhoto?.photoUrl || uploadedPhoto?.url || uploadedPhoto || photoUrl;
+      }
+
+      const plantData = {
+        nickname: plantName,
+        speciesId,
+        wateringIntervalDays: Number(waterCycle),
+        photoUrl,
+      };
+
+      console.log("등록 요청 데이터:", plantData);
+
+      await addPlant(plantData);
+
+      setIsCompleteModalOpen(true);
+    } catch (error) {
+      console.error("식물 등록 실패:", error);
+      alert("식물 등록에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isMatchedPlant = (plantName) => {
@@ -128,7 +154,7 @@ function Register() {
 
     if (!keyword) return false;
 
-    return plantName.includes(keyword);
+    return plantName?.includes(keyword);
   };
 
   return (
@@ -163,45 +189,52 @@ function Register() {
 
           {isPlantListOpen && !selectedPlant && (
             <div className="plantResultBox">
-              {PLANT_OPTIONS.map((plant) => (
+              {plantOptions.map((plant) => {
+                const plantName = plant.name || plant.speciesName;
+                const category = plant.category || plant.categoryName;
+                const description = plant.description || "";
+                const waterCycleText = plant.waterCycleText || plant.recommendedWateringInterval || plant.wateringIntervalText || "";
+
+                return (
                 <button
-                  key={plant.id}
+                  key={plant.id || plant.speciesId}
                   type="button"
                   className={
-                    isMatchedPlant(plant.name)
+                    isMatchedPlant(plantName)
                       ? "plantResultItem plantResultItemActive"
                       : "plantResultItem"
                   }
                   onClick={() => handleSelectPlant(plant)}
                 >
                   <div className="plantResultText">
-                    <strong>{plant.name}</strong>
-                    <p>{plant.description}</p>
+                    <strong>{plantName}</strong>
+                    <p>{description}</p>
                   </div>
 
                   <div className="plantResultRight">
-                    <span>{plant.category}</span>
-                    <p>💧 {plant.waterCycleText}</p>
+                    <span>{category}</span>
+                    <p>💧 {waterCycleText}</p>
                   </div>
                 </button>
-              ))}
+                );
+              })}
             </div>
           )}
 
           {selectedPlant && (
             <div className="selectedPlantArea">
               <span className="selectedPlantCategory">
-                {selectedPlant.category}
+                {selectedPlant.category || selectedPlant.categoryName}
               </span>
 
               <div className="selectedPlantEmoji">🪴</div>
 
-              <h2>{selectedPlant.name}</h2>
+              <h2>{selectedPlant.name || selectedPlant.speciesName}</h2>
 
               <p>
-                {selectedPlant.description}
+                {selectedPlant.description || ""}
                 <br />
-                추천 물주기: {selectedPlant.waterCycleText}
+                추천 물주기: {selectedPlant.waterCycleText || selectedPlant.recommendedWateringInterval || selectedPlant.wateringIntervalText || ""}
               </p>
             </div>
           )}
@@ -264,7 +297,9 @@ function Register() {
         </section>
 
         <div className="registerButtonArea">
-          <Button onClick={handleRegister}>식물 등록하기</Button>
+          <Button onClick={handleRegister} disabled={isSubmitting}>
+            {isSubmitting ? "등록 중..." : "식물 등록하기"}
+          </Button>
         </div>
       </main>
 

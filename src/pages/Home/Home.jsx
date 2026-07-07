@@ -8,8 +8,27 @@ import TopSection from "../TopSection/TopSection.jsx";
 import { getPlants } from "../../api/plantApi";
 
 const HomeContainer = styled.div`
-    height: 1004px;
+  height: 1004px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
+
+const getImageUrl = (url) => {
+  if (!url) return "";
+
+  if (url.startsWith("http")) {
+    return url;
+  }
+
+  return `${import.meta.env.VITE_API_URL}${url}`;
+};
 
 function Home() {
   const navigate = useNavigate();
@@ -42,9 +61,7 @@ const plantCards = (plants ?? []).map((plant) => ({
   id: plant.plantId,
   name: plant.nickname,
   path: `/record/${plant.plantId}`,
-  image: plant.photoUrl
-    ? `${import.meta.env.VITE_API_URL}${plant.photoUrl}`
-    : `${import.meta.env.VITE_API_URL}${plant.speciesImageUrl}`,
+  image: getImageUrl(plant.photoUrl || plant.speciesImageUrl),
   category: plant.category,
   dayText: plant.dayText,
   waterCycleText: plant.waterCycleText,
