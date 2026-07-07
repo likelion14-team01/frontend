@@ -6,6 +6,7 @@ import Record from "./pages/Record/Record.jsx";
 import Register from "./pages/Register/Register.jsx";
 import MemorialTimeline from "./pages/MemorialTimeline/MemorialTimeline.jsx";
 import Timeline from "./pages/Timeline/Timeline.jsx";
+import TimelinePreview from "./pages/Timeline/TimelinePreview.jsx";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/memorialTimeline" element={<MemorialTimeline />} />
               <Route path="/timeline" element={<Timeline />} />
+              <Route path="/timelinepreview/:id" element={<TimelinePreview />} />
             </Route>
           </Routes>
         </BrowserRouter>

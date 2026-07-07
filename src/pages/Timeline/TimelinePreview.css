@@ -1,0 +1,453 @@
+.timelinePreviewPage {
+
+  width: 100%;
+
+  min-height: 100%;
+
+  background-color: #f8fbf7;
+
+  box-sizing: border-box;
+
+}
+
+
+
+.timelinePreviewContent {
+
+  padding: 20px 20px 110px;
+
+  box-sizing: border-box;
+
+}
+
+
+
+.timelinePreviewDate {
+
+  margin: 8px 0 22px;
+
+  color: #3f3f3f;
+
+  font-size: 20px;
+
+  font-weight: 800;
+
+  text-align: center;
+
+}
+
+
+
+.previewPhotoBox {
+
+  position: relative;
+
+  width: 100%;
+
+  height: 270px;
+
+  border-radius: 18px;
+
+  overflow: hidden;
+
+  background-color: #eeeeee;
+
+}
+
+
+
+.previewPhotoImage {
+
+  width: 100%;
+
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+
+}
+
+
+
+/* 임시 몬스테라 이미지 */
+
+.previewPhotoPlaceholder {
+
+  width: 100%;
+
+  height: 100%;
+
+  background:
+
+    linear-gradient(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08)),
+
+    url("https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80");
+
+  background-size: cover;
+
+  background-position: center;
+
+}
+
+
+
+.previewPhotoTag {
+
+  position: absolute;
+
+  top: 18px;
+
+  left: 16px;
+
+
+
+  min-width: 116px;
+
+  height: 34px;
+
+  padding: 0 16px;
+
+
+
+  border-radius: 999px;
+
+  background-color: #ffffff;
+
+
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+
+
+  color: #3f3f3f;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+
+
+  box-sizing: border-box;
+
+}
+
+
+
+.previewPhotoRemoveButton {
+
+  position: absolute;
+
+  top: 15px;
+
+  right: 16px;
+
+
+
+  width: 28px;
+
+  height: 28px;
+
+
+
+  border: none;
+
+  background: transparent;
+
+
+
+  color: rgba(255, 255, 255, 0.85);
+
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+
+
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+
+
+  font-size: 26px;
+
+  font-weight: 300;
+
+  line-height: 1;
+
+
+
+  cursor: pointer;
+
+  padding: 0;
+
+  z-index: 5;
+
+}
+
+
+
+.previewPhotoChangeButton {
+
+  position: absolute;
+
+  right: 14px;
+
+  bottom: 14px;
+
+
+
+  height: 28px;
+
+  padding: 0 12px;
+
+
+
+  border: none;
+
+  border-radius: 999px;
+
+  background-color: #e8fbe7;
+
+
+
+  color: #64c95f;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+
+
+  cursor: pointer;
+
+}
+
+
+
+.previewMemoBox {
+
+  width: 100%;
+
+  height: 140px;
+
+  margin-top: 20px;
+
+  padding: 20px;
+
+
+
+  border: none;
+
+  outline: none;
+
+  resize: none;
+
+
+
+  border-radius: 18px;
+
+  background-color: #ffffff;
+
+
+
+  color: #3f3f3f;
+
+  font-family: inherit;
+
+  font-size: 15px;
+
+  font-weight: 500;
+
+  line-height: 1.5;
+
+
+
+  box-sizing: border-box;
+
+}
+
+
+
+.previewMemoBox::placeholder {
+
+  color: #b8beb8;
+
+}
+
+
+
+.previewStatusRow {
+
+  margin-top: 14px;
+
+
+
+  display: grid;
+
+  grid-template-columns: 38px 1fr 38px 1.25fr;
+
+  align-items: center;
+
+  gap: 10px;
+
+}
+
+
+
+.previewGrowthIconBox {
+
+  width: 36px;
+
+  height: 36px;
+
+
+
+  border: 2px solid #78dc6e;
+
+  border-radius: 50%;
+
+
+
+  background-color: #ffffff;
+
+
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+}
+
+
+
+.previewGrowthIconBox span {
+
+  font-size: 20px;
+
+  line-height: 1;
+
+}
+
+
+
+.previewGrowthTextChip {
+
+  height: 40px;
+
+
+
+  border-radius: 14px;
+
+  background-color: #ffffff;
+
+
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+
+
+  color: #3f3f3f;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+}
+
+
+
+.previewWaterIcon {
+
+  width: 38px;
+
+  height: 40px;
+
+
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+
+
+  font-size: 28px;
+
+}
+
+
+
+.previewWaterChip {
+
+  height: 40px;
+
+
+
+  border-radius: 14px;
+
+  background-color: #cdeeff;
+
+
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+
+
+  color: #62bdea;
+
+  font-size: 14px;
+
+  font-weight: 800;
+
+}
+
+
+
+.previewEditButton {
+
+  width: 100%;
+
+  height: 68px;
+
+  margin-top: 86px;
+
+
+
+  border: none;
+
+  border-radius: 999px;
+
+
+
+  background-color: #f0f0f0;
+
+  color: #5fd45b;
+
+
+
+  font-size: 18px;
+
+  font-weight: 800;
+
+
+
+  cursor: pointer;
+
+}

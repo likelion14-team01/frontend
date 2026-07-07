@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 import Footer from "../../components/footer/Footer.jsx";
@@ -10,9 +11,39 @@ const plants = [
     name: "몬스테라",
     recordCount: 3,
     records: [
-      { id: 1, date: "6월 14일", tag: "sprout", memo: "새 잎이 올라오기 시작했다" },
-      { id: 2, date: "6월 18일", tag: "leaf", memo: "잎이 더 커졌다" },
-      { id: 3, date: "6월 22일", tag: "water", memo: "물을 주고 건강하게 자랐다" },
+      {
+        id: 1,
+        date: "6월 14일",
+        day: "일",
+        tag: "sprout",
+        tagText: "새잎",
+        tagMessage: "새싹이 나왔어요",
+        memo: "새 잎이 올라오기 시작했다",
+        waterText: "물 준 날",
+        imageUrl: "",
+      },
+      {
+        id: 2,
+        date: "6월 18일",
+        day: "목",
+        tag: "leaf",
+        tagText: "잎 성장",
+        tagMessage: "잎이 더 커졌어요",
+        memo: "잎이 더 커졌다",
+        waterText: "패스한 날",
+        imageUrl: "",
+      },
+      {
+        id: 3,
+        date: "6월 22일",
+        day: "월",
+        tag: "water",
+        tagText: "잎 변화",
+        tagMessage: "건강하게 자랐어요",
+        memo: "물을 주고 건강하게 자랐다",
+        waterText: "물 준 날",
+        imageUrl: "",
+      },
     ],
   },
   {
@@ -20,8 +51,28 @@ const plants = [
     name: "스투키",
     recordCount: 2,
     records: [
-      { id: 4, date: "6월 15일", tag: "sprout", memo: "첫 기록을 남겼다" },
-      { id: 5, date: "6월 21일", tag: "leaf", memo: "새 잎이 자랐다" },
+      {
+        id: 4,
+        date: "6월 15일",
+        day: "월",
+        tag: "sprout",
+        tagText: "새잎",
+        tagMessage: "새싹이 나왔어요",
+        memo: "첫 기록을 남겼다",
+        waterText: "물 준 날",
+        imageUrl: "",
+      },
+      {
+        id: 5,
+        date: "6월 21일",
+        day: "일",
+        tag: "leaf",
+        tagText: "잎 성장",
+        tagMessage: "잎이 자랐어요",
+        memo: "새 잎이 자랐다",
+        waterText: "패스한 날",
+        imageUrl: "",
+      },
     ],
   },
 ];
@@ -38,6 +89,7 @@ const Content = styled.div`
   width: 100%;
   height: calc(100% - 79px);
   padding: 47px 12px 0;
+  box-sizing: border-box;
 `;
 
 const PageTitle = styled.h1`
@@ -104,8 +156,13 @@ const TimelineIcon = styled.div`
   z-index: 2;
 `;
 
-const CardWrapper = styled.div`
+const CardWrapper = styled.button`
   width: 294px;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
 `;
 
 const FooterWrapper = styled.div`
@@ -122,8 +179,19 @@ const getTimelineIcon = (tag) => {
 };
 
 export default function Timeline() {
+  const navigate = useNavigate();
   const [selectedPlantId, setSelectedPlantId] = useState(1);
+
   const selectedPlant = plants.find((plant) => plant.id === selectedPlantId);
+
+  const handleTimelineCardClick = (record) => {
+    navigate(`/timelinepreview/${record.id}`, {
+      state: {
+        plantName: selectedPlant.name,
+        record,
+      },
+    });
+  };
 
   return (
     <PageContainer>
@@ -149,7 +217,11 @@ export default function Timeline() {
           {selectedPlant.records.map((record) => (
             <TimelineItem key={record.id}>
               <TimelineIcon>{getTimelineIcon(record.tag)}</TimelineIcon>
-              <CardWrapper>
+
+              <CardWrapper
+                type="button"
+                onClick={() => handleTimelineCardClick(record)}
+              >
                 <TimelineCard
                   dateText={record.date}
                   memo={record.memo}
