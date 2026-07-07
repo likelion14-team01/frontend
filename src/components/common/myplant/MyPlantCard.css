@@ -13,7 +13,7 @@
 /* 카드 1개 */
 .myPlantCard {
   position: relative;
-  width: 100%;
+  width: 180px;
   height: 240px;
   border-radius: 28px;
   background-color: #ffffff;
@@ -38,20 +38,39 @@
   white-space: nowrap;
 }
 
-/* 이미지 영역 */
-.myPlantImageBox {
-  width: 100%;
-  height: 150px;
-  background-color: #f7f7f7;
-  overflow: hidden;
+.myPlantPhotoBadge {
+  background-color: rgba(56, 83, 39, 0.72);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(2px);
 }
 
-/* 사용자 등록 사진 크기 통일 */
-.myPlantImage {
+/* 이미지 영역 */
+.myPlantImageBox {
+  width: 180px;
+  height: 155px;
+  background-color: #fff;
+  overflow: hidden;
+
+  display: flex;
+  justify-content: center; /* 가로 가운데 */
+  align-items: center;     /* 세로 가운데 */
+}
+
+.myPlantPhoto {
   width: 100%;
   height: 100%;
-  display: block;
   object-fit: cover;
+  margin-top: 0;
+}
+
+.myPlantImage {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  display: block;
+  margin-top: 30px;
 }
 
 .myPlantImagePlaceholder {
@@ -72,8 +91,21 @@
   bottom: 16px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: flex-start; 
   gap: 8px;
+}
+
+.myPlantCategory {
+  flex-shrink: 0;
+  align-self: flex-start;
+  position: relative;
+  top: -4px; 
+  padding: 4px 9px;
+  border-radius: 999px;
+  background-color: #e8fbe7;
+  color: #62c95d;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .myPlantTextArea {
@@ -95,6 +127,7 @@
   color: #a3a3a3;
   font-size: 12px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .myPlantDot {
@@ -105,19 +138,10 @@
   font-size: 12px;
 }
 
-.myPlantCategory {
-  flex-shrink: 0;
-  padding: 4px 9px;
-  border-radius: 999px;
-  background-color: #e8fbe7;
-  color: #62c95d;
-  font-size: 12px;
-  font-weight: 700;
-}
 
 /* 추가 카드 */
 .myPlantAddCard {
-  width: 100%;
+  width: 180px;
   height: 240px;
   border: none;
   border-radius: 28px;

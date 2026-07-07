@@ -13,12 +13,18 @@ function MyPlantCard({
   return (
     <article className="myPlantCard" onClick={onClick}>
       {nextWateringText && (
-        <span className="myPlantBadge">{nextWateringText}</span>
+        <span className={name === "몬스테라" ? "myPlantBadge myPlantPhotoBadge" : "myPlantBadge"}>
+          {nextWateringText}
+        </span>
       )}
 
       <div className="myPlantImageBox">
         {image ? (
-          <img src={image} alt={name} className="myPlantImage" />
+          <img
+            src={image}
+            alt={name}
+            className={name === "몬스테라" ? "myPlantPhoto" : "myPlantImage"}
+          />
         ) : (
           <div className="myPlantImagePlaceholder">🌱</div>
         )}
