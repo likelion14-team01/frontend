@@ -5,6 +5,7 @@ import RootLayout from "./layout/RootLayout.jsx";
 import Record from "./pages/Record/Record.jsx";
 import Register from "./pages/Register/Register.jsx";
 import MemorialTimeline from "./pages/MemorialTimeline/MemorialTimeline.jsx";
+import Timeline from "./pages/Timeline/Timeline.jsx";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
               <Route path="/record/:plantName" element={<Record />} />
               <Route path="/register" element={<Register />} />
               <Route path="/memorialTimeline" element={<MemorialTimeline />} />
+              <Route path="/timeline" element={<Timeline />} />
             </Route>
           </Routes>
         </BrowserRouter>
