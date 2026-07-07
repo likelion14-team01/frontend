@@ -16,6 +16,9 @@ const FooterContainer = styled.div`
     overflow: hidden;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
 `;
 
 const HomeIcon = styled.img`
