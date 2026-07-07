@@ -5,13 +5,17 @@ import RootLayout from "./layout/RootLayout.jsx";
 
 function App() {
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route element={<RootLayout />}>
-                    <Route path="/" element={<Home />} />
-                </Route>
-            </Routes>
-        </BrowserRouter>
+        <div className="app-wrapper">
+            <div className="app-container">
+                <BrowserRouter>
+                    <Routes>
+                        <Route element={<RootLayout />}>
+                            <Route path="/" element={<Home />} />
+                        </Route>
+                    </Routes>
+                </BrowserRouter>
+            </div>
+        </div>
     );
 }
 

@@ -7,8 +7,6 @@ function Home() {
     <div>
       <MainHeader title="홈" />
 
-      <div style={{ height: "20px", backgroundColor: "#f5f5f5" }} />
-
       <Header title="식물등록" />
 
       <main style={{ padding: "20px" }}>
