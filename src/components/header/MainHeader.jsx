@@ -34,4 +34,3 @@ function Header({ title, showBack = true, rightContent = null }) {
 }
 
 export default Header;
-
