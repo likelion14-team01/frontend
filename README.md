@@ -60,7 +60,8 @@
 - **하루 1기록 보장**: `UNIQUE(plant_id, record_date)` 제약 + PUT upsert 설계로 중복 없는 일일 기록을 DB 레벨에서 보장합니다.
 - **죽음 처리의 단일 경로**: "작별" 태그 저장 시 같은 트랜잭션에서 `died_at`이 갱신되는 유일한 경로를 두어, 기록과 상태가 어긋날 수 없는 구조로 설계했습니다.
 
-- ### 🎯 Git Convention
+---
+### 🎯 Git Convention
 
 - 🎉 **Start** : Start New Project [:tada:]
 - ✨ **Feat** : 새로운 기능 추가 [:sparkles:]
