@@ -1,7 +1,12 @@
-import styled from "styled-components";
+import React from "react";
+import MainHeader from "../../components/header/MainHeader";
 
-export default function Home() {
-    return (
-        <></>
-    );
+function Home() {
+  return (
+    <div>
+      <MainHeader title="홈" />
+    </div>
+  );
 }
+
+export default Home;
