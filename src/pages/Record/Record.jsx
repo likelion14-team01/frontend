@@ -305,19 +305,24 @@ export default function Record() {
     try {
       setIsSubmitting(true);
 
-      let photoUrl = "";
+      let photoUrl = selectedPlant?.photoUrl || selectedPlant?.speciesImageUrl || "";
 
       if (selectedImageFile) {
         const uploadedPhoto = await uploadPhoto(selectedImageFile);
-        photoUrl = uploadedPhoto?.photoUrl || uploadedPhoto?.url || uploadedPhoto || "";
+        photoUrl = uploadedPhoto?.photoUrl || uploadedPhoto?.url || uploadedPhoto || photoUrl;
       }
 
       const recordDate = getTodayDate();
+      const growthTag = tagValueMap[selectedTag];
+      const trimmedMemo = memo.trim();
+
       const recordData = {
         watered: waterStatus === "watered",
-        note: memo,
-        growthTag: tagValueMap[selectedTag],
         photoUrl,
+        note: trimmedMemo,
+        memo: trimmedMemo,
+        growthTag,
+        tag: growthTag,
       };
 
       console.log("기록 저장 요청 데이터:", recordData);
@@ -325,8 +330,8 @@ export default function Record() {
       await saveRecord(selectedPlant.plantId, recordDate, recordData);
       setIsCompleteModalOpen(true);
     } catch (error) {
-      console.error("기록 저장 실패:", error);
-      alert("기록 저장에 실패했습니다.");
+      console.error("기록 저장 실패:", error.response?.data || error);
+      alert(error.response?.data?.message || "기록 저장에 실패했습니다.");
     } finally {
       setIsSubmitting(false);
     }
