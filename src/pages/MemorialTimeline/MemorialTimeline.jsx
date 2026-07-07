@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 import Footer from "../../components/footer/Footer.jsx";
+import TimelineCard from "../Timeline/TimelineCard";
 
 const plants = [
   {
@@ -42,7 +43,7 @@ const timelineRecords = [
 
 const PageContainer = styled.div`
   width: 402px;
-  height: 1259px;
+  height: 1280px;
   position: relative;
   background: #F6F9F5;
   overflow: hidden;
@@ -251,19 +252,27 @@ export default function MemorialTimeline() {
         <TimelineArea>
           <TimelineLine />
           {timelineRecords.map((record, index) => (
-            <TimelineItem key={record.id}>
-              <TimelineIcon
-                $index={index}
-                $farewell={record.tag === "farewell"}
-              >
-                {getTimelineIcon(record.tag)}
-              </TimelineIcon>
-              <CardImageArea>
-                <DateBadge>📷 {record.date}</DateBadge>
-              </CardImageArea>
-              <CardContent>{record.content}</CardContent>
-            </TimelineItem>
-          ))}
+  <div
+    key={record.id}
+    style={{
+      position: "relative",
+      marginBottom: "14px",
+    }}
+  >
+    <TimelineIcon
+      $index={index}
+      $farewell={record.tag === "farewell"}
+    >
+      {getTimelineIcon(record.tag)}
+    </TimelineIcon>
+
+    <TimelineCard
+      imageUrl={record.imageUrl}
+      dateText={record.date}
+      memo={record.content}
+    />
+  </div>
+))}
         </TimelineArea>
       </Content>
 
