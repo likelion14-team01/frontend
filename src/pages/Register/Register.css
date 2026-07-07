@@ -1,0 +1,412 @@
+.registerPage {
+  min-height: 874px;
+  background-color: #f8fbf7;
+  box-sizing: border-box;
+}
+
+.registerContent {
+  padding: 28px 20px 110px;
+}
+
+.registerCard {
+  width: 100%;
+  padding: 22px 20px 24px;
+  border-radius: 28px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.03);
+}
+
+.registerLabel {
+  display: block;
+  margin-bottom: 10px;
+  color: #8a8a8a;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.searchInputBox {
+  width: 100%;
+  height: 54px;
+  border: 2px solid #7dd971;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+}
+
+.searchIcon {
+  margin-right: 10px;
+  color: #65d762;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  color: #3f3f3f;
+  font-size: 15px;
+  font-weight: 700;
+  background: transparent;
+}
+
+.searchInput::placeholder {
+  color: #c8c8c8;
+  font-weight: 600;
+}
+
+.clearSearchButton {
+  border: none;
+  background: none;
+  color: #65d762;
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.plantResultBox {
+  margin-top: 14px;
+  padding: 10px;
+  border: 2px solid #7dd971;
+  border-radius: 24px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+}
+
+.plantResultItem {
+  width: 100%;
+  border: none;
+  background-color: transparent;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  text-align: left;
+  cursor: pointer;
+}
+
+.plantResultItem:last-child {
+  margin-bottom: 0;
+}
+
+.plantResultItemActive {
+  background-color: #eafbe7;
+}
+
+.plantResultText {
+  min-width: 0;
+}
+
+.plantResultItem strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #3f3f3f;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.plantResultItem p {
+  margin: 0;
+  color: #a2a2a2;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.plantResultRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.plantResultRight span {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background-color: #e8fbe7;
+  color: #64c95f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.plantResultRight p {
+  color: #3f3f3f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.selectedPlantArea {
+  padding: 20px 0 28px;
+  text-align: center;
+}
+
+.selectedPlantCategory {
+  display: inline-block;
+  margin-bottom: 16px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background-color: #e8fbe7;
+  color: #64c95f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.selectedPlantEmoji {
+  font-size: 104px;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.selectedPlantArea h2 {
+  margin: 0 0 8px;
+  color: #3f3f3f;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.selectedPlantArea p {
+  margin: 0;
+  color: #a2a2a2;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* 사진 추가 영역 */
+.photoLabel {
+  margin-top: 20px;
+}
+
+.photoInput {
+  display: none;
+}
+
+.photoUploadBox {
+  width: 100%;
+  height: 100px;
+  border: 2px solid #7dd971;
+  border-radius: 20px;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.photoUploadInner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cameraCircle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #7dd971;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.cameraIcon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.photoUploadText {
+  color: #9bbf98;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.photoPreviewBox {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  border-radius: 20px;
+  overflow: hidden;
+  display: block;
+  cursor: pointer;
+  background-color: #ffffff;
+  border: 2px solid #7dd971;
+  box-sizing: border-box;
+}
+
+.photoPreviewBox img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.removePhotoButton {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+
+  width: 28px;
+  height: 28px;
+
+  border: none;
+  background: transparent;
+
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 26px;
+  font-weight: 300;
+  line-height: 1;
+
+  cursor: pointer;
+  z-index: 10;
+
+  padding: 0;
+}
+
+.changePhotoButton {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background-color: #e8fbe7;
+  color: #64c95f;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* 물주기 설정 */
+.waterSettingArea {
+  margin-top: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.waterSettingArea .registerLabel {
+  margin-bottom: 0;
+}
+
+.waterSettingControl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #3f3f3f;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.waterDrop {
+  font-size: 22px;
+}
+
+.waterSettingControl input {
+  width: 64px;
+  height: 32px;
+  border: none;
+  outline: none;
+  border-radius: 999px;
+  background-color: #e8fbe7;
+  color: #3f3f3f;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.waterSettingControl input::placeholder {
+  color: #9bbf98;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* 등록 버튼 영역 */
+.registerButtonArea {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  background: transparent;
+}
+
+/* 등록 완료 모달 */
+.modalOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+
+  width: 100%;
+  height: 100%;
+
+  background-color: rgba(0, 0, 0, 0.55);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.completeModal {
+  width: 280px;
+  padding: 44px 12px 12px;
+  border-radius: 28px;
+  background-color: #ffffff;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.completeIcon {
+  width: 86px;
+  height: 86px;
+  margin: 0 auto 28px;
+  border-radius: 50%;
+  background-color: #7dd971;
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 58px;
+  font-weight: 500;
+}
+
+.completeModal h2 {
+  margin: 0 0 14px;
+  color: #3f3f3f;
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.completeModal p {
+  margin: 0 0 18px;
+  color: #a2a2a2;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.goHomeButton {
+  width: 100%;
+  height: 68px;
+  border: none;
+  border-radius: 34px;
+  background-color: #7dd971;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
+}

@@ -1,0 +1,168 @@
+.myPlantCardSection {
+  width: 100%;
+  padding: 0 16px 100px;
+  box-sizing: border-box;
+}
+
+.myPlantCardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+/* 카드 1개 */
+.myPlantCard {
+  position: relative;
+  width: 180px;
+  height: 240px;
+  border-radius: 28px;
+  background-color: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+}
+
+/* 물주기 배지 */
+.myPlantBadge {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  padding: 5px 14px;
+  border-radius: 999px;
+  background-color: #e8fbe7;
+  color: #72d66d;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.myPlantPhotoBadge {
+  background-color: rgba(56, 83, 39, 0.72);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(2px);
+}
+
+/* 이미지 영역 */
+.myPlantImageBox {
+  width: 180px;
+  height: 155px;
+  background-color: #fff;
+  overflow: hidden;
+
+  display: flex;
+  justify-content: center; /* 가로 가운데 */
+  align-items: center;     /* 세로 가운데 */
+}
+
+.myPlantPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  margin-top: 0;
+}
+
+.myPlantImage {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  display: block;
+  margin-top: 30px;
+}
+
+.myPlantImagePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f1fbef;
+  font-size: 48px;
+}
+
+/* 카드 하단 정보 */
+.myPlantInfo {
+  position: absolute;
+  left: 16px;
+  right: 12px;
+  bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; 
+  gap: 8px;
+}
+
+.myPlantCategory {
+  flex-shrink: 0;
+  align-self: flex-start;
+  position: relative;
+  top: -4px; 
+  padding: 4px 9px;
+  border-radius: 999px;
+  background-color: #e8fbe7;
+  color: #62c95d;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.myPlantTextArea {
+  min-width: 0;
+}
+
+.myPlantName {
+  margin: 0 0 6px;
+  color: #3f3f3f;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.myPlantSubText {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #a3a3a3;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.myPlantDot {
+  color: #cfcfcf;
+}
+
+.myPlantWaterIcon {
+  font-size: 12px;
+}
+
+
+/* 추가 카드 */
+.myPlantAddCard {
+  width: 180px;
+  height: 240px;
+  border: none;
+  border-radius: 28px;
+  background-color: #ffffff;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.04);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.myPlantAddIcon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background-color: #78dc70;
+  color: #ffffff;
+  font-size: 42px;
+  font-weight: 400;
+  line-height: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
