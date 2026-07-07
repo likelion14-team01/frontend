@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import homeIcon from "../../assets/icons/home.svg";
 import homeActive from "../../assets/icons/home_active.svg";
@@ -76,11 +76,12 @@ const MenuSpan = styled.span`
 export default function Footer() {
 
     const { pathname } = useLocation();
+    const navigate = useNavigate();
 
     return (
         <FooterContainer>
-            <HomeIcon src={pathname === "/" || pathname.startsWith("/record/") || pathname === "/register" ? homeActive : homeIcon}/>
-            <TimelineIcon src={pathname === "/timeline" ? timelineActive : timelineIcon} />
+            <HomeIcon src={pathname === "/" || pathname.startsWith("/record/") || pathname === "/register" ? homeActive : homeIcon} onClick={() => navigate("/")}/>
+            <TimelineIcon src={pathname === "/timeline" || pathname === "/memorialTimeline" ? timelineActive : timelineIcon} />
             <MypageIcon src={pathname === "/mypage" ? mypageActive : mypageIcon} />
             <HomeP><MenuSpan>홈</MenuSpan></HomeP>
             <TimelineP><MenuSpan>타임라인</MenuSpan></TimelineP>
