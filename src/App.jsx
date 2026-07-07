@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from "./pages/Home/Home.jsx";
 import RootLayout from "./layout/RootLayout.jsx";
+import Record from "./pages/Record/Record.jsx";
 
 function App() {
     return (
@@ -11,6 +12,7 @@ function App() {
                     <Routes>
                         <Route element={<RootLayout />}>
                             <Route path="/" element={<Home />} />
+                            <Route path="/record/:plantName" element={<Record />} />
                         </Route>
                     </Routes>
                 </BrowserRouter>
