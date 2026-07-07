@@ -1,0 +1,18 @@
+.commonButton {
+  width: 354px;
+  height: 68px;
+
+  border: none;
+  border-radius: 34px;
+  background-color: #7dd971;
+
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 700;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+}
