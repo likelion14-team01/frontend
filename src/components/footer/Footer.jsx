@@ -79,7 +79,7 @@ export default function Footer() {
 
     return (
         <FooterContainer>
-            <HomeIcon src={pathname === "/" ? homeActive : homeIcon} />
+            <HomeIcon src={pathname === "/" || pathname.startsWith("/record/") ? homeActive : homeIcon}/>
             <TimelineIcon src={pathname === "/timeline" ? timelineActive : timelineIcon} />
             <MypageIcon src={pathname === "/mypage" ? mypageActive : mypageIcon} />
             <HomeP><MenuSpan>홈</MenuSpan></HomeP>
