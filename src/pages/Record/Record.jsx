@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
 import styled from "styled-components";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Header from "../../components/header/Header.jsx";
 import Button from "../../components/button/Button.jsx";
+import RecordModal from "./RecordModal.jsx";
 
 const plantNameMap = {
   monstera: "몬스테라",
@@ -16,8 +17,8 @@ const tagList = ["새잎", "잎 성장", "꽃 개화", "잎 변화", "작별"];
 const RecordContainer = styled.div`
     width: 100%;
     height: 890px;
-  padding: 0 20px 110px;
-  background-color: #F6F9F5;
+    padding: 0 20px 110px;
+    background-color: #F6F9F5;
 `;
 
 const PlantSelect = styled.div`
@@ -50,6 +51,7 @@ const PhotoBox = styled.div`
     justify-content: center;
     gap: 8px;
     box-shadow: 0px 4px 4px rgba(97, 197, 83, 0.03);
+    position: relative;
     overflow: hidden;
     cursor: pointer;
 `;
@@ -62,6 +64,34 @@ const PreviewImage = styled.img`
     width: 100%;
     height: 100%;
     object-fit: cover;
+`;
+
+const RemovePhotoButton = styled.button`
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    color: #78dc6e;
+    font-size: 35px;
+    font-weight: 500;
+    cursor: pointer;
+`;
+
+const ChangePhotoButton = styled.button`
+    position: absolute;
+    right: 16px;
+    bottom: 15px;
+    width: 45px;
+    height: 22px;
+    border: none;
+    border-radius: 999px;
+    background: #E3F7E0;
+    color: #60C553;
+    font-size: 12px;
+    font-family: Pretendard Variable;
+    font-weight: 500;
+    cursor: pointer;
 `;
 
 const CameraCircle = styled.div`
@@ -187,12 +217,15 @@ const ButtonWrapper = styled.div`
 
 export default function Record() {
   const { plantName } = useParams();
+  const navigate = useNavigate();
   const currentPlantName = plantNameMap[plantName] || "몬스테라";
   const [selectedTag, setSelectedTag] = useState("");
   const [waterStatus, setWaterStatus] = useState("");
 
   const [selectedImage, setSelectedImage] = useState(null);
   const photoInputRef = useRef(null);
+
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
 
   const handlePhotoClick = () => {
     photoInputRef.current.click();
@@ -206,17 +239,40 @@ export default function Record() {
     }
   };
 
+  const handleRemovePhoto = (event) => {
+    event.stopPropagation();
+    setSelectedImage(null);
+    photoInputRef.current.value = "";
+  };
+
+  const handleSaveRecord = () => {
+    setIsCompleteModalOpen(true);
+  };
+
+  const handleButtonClick = () => {
+  if (selectedTag === "작별") {
+    navigate("/memorialTimeline");
+  } else {
+    navigate("/");
+  }
+};
+
   return (
     <RecordContainer>
       <Header title="기록하기" />
-
       <PlantSelect>
         <span>{currentPlantName}</span>
         <ArrowDown />
       </PlantSelect>
       <PhotoBox onClick={handlePhotoClick}>
         {selectedImage ? (
-          <PreviewImage src={selectedImage} alt="선택한 식물 사진" />
+          <>
+            <PreviewImage src={selectedImage} />
+            <RemovePhotoButton type="button" onClick={handleRemovePhoto}>
+              ×
+            </RemovePhotoButton>
+            <ChangePhotoButton type="button">변경</ChangePhotoButton>
+          </>
         ) : (
           <>
             <CameraCircle>📷</CameraCircle>
@@ -257,8 +313,16 @@ export default function Record() {
         ))}
       </TagRow>
         <ButtonWrapper>
-            <Button>오늘 기록 저장하기</Button>
+            <Button onClick={handleSaveRecord}>오늘 기록 저장하기</Button>
         </ButtonWrapper>
+        {isCompleteModalOpen && (
+          <RecordModal
+            variant={selectedTag === "작별" ? "farewell" : "complete"}
+            title={selectedTag === "작별" ? "작별을 기록했어요" : "기록 완료!"}
+            description={selectedTag === "작별" ? "함께한 시간은 소중한 기록으로 남았어요.": "오늘도 잘 돌봐줬어요"}
+        buttonText={selectedTag === "작별" ? "추억 확인하기" : "홈으로 가기"}
+        onButtonClick={handleButtonClick} />
+        )}
    
     </RecordContainer>
   );
